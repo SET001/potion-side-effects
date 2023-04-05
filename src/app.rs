@@ -3,6 +3,7 @@ use bevy_ecs_tilemap::TilemapPlugin;
 
 use crate::{
   config::GameConfig,
+  pawns::PawnsPlugin,
   states::{GameStates, GameStatesPlugin},
 };
 
@@ -24,6 +25,7 @@ pub fn get_app() -> App {
         .set(ImagePlugin::default_nearest()),
     )
     .add_plugins(GameStatesPlugin)
+    .add_plugins(PawnsPlugin)
     .add_plugin(TilemapPlugin)
     .add_startup_system(setup);
   app
