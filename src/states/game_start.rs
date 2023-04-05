@@ -43,8 +43,8 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
   let map_type = TilemapType::default();
   let map_transform = get_tilemap_center_transform(&map_size, &grid_size, &map_type, 10.0);
 
-  for x in 0..map_size.x {
-    let tile_pos = TilePos { x, y: 0 };
+  let mut spawn_platform_block = |x: u32, y: u32| {
+    let tile_pos = TilePos { x, y };
     let tile_entity = commands
       .spawn((
         TileBundle {
@@ -62,6 +62,21 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
       ))
       .id();
     tile_storage.set(&tile_pos, tile_entity);
+  };
+
+  for x in 0..map_size.x {
+    spawn_platform_block(x, 0);
+    spawn_platform_block(x, map_size.y - 1);
+    spawn_platform_block(0, x);
+    spawn_platform_block(map_size.x - 1, x);
+  }
+
+  for x in 0..10 {
+    spawn_platform_block(x + 2, 5);
+  }
+
+  for x in 0..10 {
+    spawn_platform_block(x + 12, 10);
   }
 
   commands.entity(tilemap_entity).insert(TilemapBundle {
