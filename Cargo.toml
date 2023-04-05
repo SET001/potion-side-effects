@@ -11,3 +11,6 @@ bevy_rapier2d = "0.21.0"
 bevy_ecs_tilemap = "0.10.0"
 leafwing-input-manager = { version="0.9.1" }
 rand = "0.8.5"
+
+[features]
+debug_physics = []

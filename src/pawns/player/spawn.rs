@@ -1,10 +1,11 @@
 use bevy::prelude::*;
+use bevy_rapier2d::prelude::{Collider, CollisionGroups, RigidBody};
 use leafwing_input_manager::{
   prelude::{ActionState, InputMap},
   InputManagerBundle,
 };
 
-use crate::core::layers::GameLayer;
+use crate::core::{health::Health, layers::GameLayer};
 
 use super::controller::PlayerAction;
 
@@ -12,13 +13,12 @@ use super::controller::PlayerAction;
 pub struct Player;
 #[derive(Bundle, Default)]
 pub struct PlayerBundle {
-  // pub velocity: VelocityComponent,
   pub transform: Transform,
   pub global_transform: GlobalTransform,
   pub player: Player,
   pub name: Name,
   pub visibility: VisibilityBundle,
-  // pub health: Health,
+  pub health: Health,
 }
 
 pub struct PlayerSpawnEvent {
@@ -43,6 +43,9 @@ pub fn spawn_player(
           transform: Transform::from_xyz(0., 0., GameLayer::Player as i32 as f32),
           ..default()
         },
+        RigidBody::Dynamic,
+        Collider::cuboid(8., 8.),
+        // CollisionGroups::new(physics::PLAYER, physics::PICKABLE | physics::ENVIRONMENT),
       ))
       .with_children(|parent| {
         parent.spawn(SpriteBundle {

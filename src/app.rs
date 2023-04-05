@@ -1,5 +1,9 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
+use bevy_rapier2d::{
+  prelude::{NoUserData, RapierPhysicsPlugin},
+  render::RapierDebugRenderPlugin,
+};
 
 use crate::{
   config::GameConfig,
@@ -26,16 +30,17 @@ pub fn get_app() -> App {
     )
     .add_plugins(GameStatesPlugin)
     .add_plugins(PawnsPlugin)
+    .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugin(TilemapPlugin)
     .add_startup_system(setup);
+
+  #[cfg(feature = "debug_physics")]
+  app.add_plugin(RapierDebugRenderPlugin::default());
+
   app
 }
 
-fn setup(
-  mut commands: Commands,
-  // mut rapier_config: ResMut<RapierConfiguration>
-) {
-  // rapier_config.gravity = Vec2::default();
+fn setup(mut commands: Commands) {
   commands.spawn(Camera2dBundle {
     transform: Transform::from_translation(Vec3::new(0., 0., 1000.)),
     ..default()

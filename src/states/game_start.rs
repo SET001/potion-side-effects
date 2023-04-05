@@ -1,12 +1,13 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::{
   prelude::{
-    get_tilemap_center_transform, TilemapId, TilemapSize, TilemapTexture, TilemapTileSize,
-    TilemapType,
+    get_tilemap_center_transform, TilemapGridSize, TilemapId, TilemapSize, TilemapTexture,
+    TilemapTileSize, TilemapType,
   },
   tiles::{TileBundle, TilePos, TileStorage, TileTextureIndex},
   TilemapBundle,
 };
+use bevy_rapier2d::prelude::*;
 
 use crate::{config::GameConfig, pawns::player::spawn::PlayerSpawnEvent};
 
@@ -22,8 +23,6 @@ impl Plugin for GameStartState {
         .chain()
         .in_schedule(OnEnter(THIS_STATE)),
     );
-    // .add_system(on_exit.in_schedule(OnExit(THIS_STATE)))
-    // .add_system(controller.in_set(OnUpdate(THIS_STATE)));
   }
 }
 
@@ -39,21 +38,31 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
   let map_size = TilemapSize::from(config.map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let mut tile_storage = TileStorage::empty(map_size);
+  let tile_size = TilemapTileSize::from(config.tile_size.as_vec2());
+  let grid_size: TilemapGridSize = tile_size.clone().into();
+  let map_type = TilemapType::default();
+  let map_transform = get_tilemap_center_transform(&map_size, &grid_size, &map_type, 10.0);
+
   for x in 0..map_size.x {
     let tile_pos = TilePos { x, y: 0 };
     let tile_entity = commands
-      .spawn(TileBundle {
-        position: tile_pos,
-        texture_index: TileTextureIndex(19),
-        tilemap_id: TilemapId(tilemap_entity),
-        ..Default::default()
-      })
+      .spawn((
+        TileBundle {
+          position: tile_pos,
+          texture_index: TileTextureIndex(19),
+          tilemap_id: TilemapId(tilemap_entity),
+          ..Default::default()
+        },
+        Transform::from_translation(
+          map_transform * tile_pos.center_in_world(&grid_size, &map_type).extend(100.),
+        ),
+        GlobalTransform::default(),
+        RigidBody::Fixed,
+        Collider::cuboid(8., 8.),
+      ))
       .id();
     tile_storage.set(&tile_pos, tile_entity);
   }
-  let tile_size = TilemapTileSize::from(config.tile_size.as_vec2());
-  let grid_size = tile_size.into();
-  let map_type = TilemapType::default();
 
   commands.entity(tilemap_entity).insert(TilemapBundle {
     grid_size,
@@ -62,7 +71,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
     storage: tile_storage,
     texture: TilemapTexture::Single(texture_handle),
     tile_size,
-    transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 10.0),
+    transform: map_transform,
     ..Default::default()
   });
 }
