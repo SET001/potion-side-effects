@@ -1,5 +1,7 @@
 use bevy::prelude::*;
-use bevy_rapier2d::prelude::{Collider, CollisionGroups, RigidBody};
+use bevy_rapier2d::prelude::{
+  Collider, KinematicCharacterController, KinematicCharacterControllerOutput, RigidBody,
+};
 use leafwing_input_manager::{
   prelude::{ActionState, InputMap},
   InputManagerBundle,
@@ -13,11 +15,9 @@ use super::controller::PlayerAction;
 pub struct Player;
 #[derive(Bundle, Default)]
 pub struct PlayerBundle {
-  pub transform: Transform,
-  pub global_transform: GlobalTransform,
+  pub spatial: SpatialBundle,
   pub player: Player,
   pub name: Name,
-  pub visibility: VisibilityBundle,
   pub health: Health,
 }
 
@@ -31,7 +31,14 @@ pub fn spawn_player(
   asset_server: Res<AssetServer>,
 ) {
   for event in events.iter() {
-    let mut input_map = InputMap::new([(KeyCode::Left, PlayerAction::MoveLeft)]);
+    let input_map = InputMap::new([
+      (KeyCode::Left, PlayerAction::MoveLeft),
+      (KeyCode::A, PlayerAction::MoveLeft),
+      (KeyCode::Right, PlayerAction::MoveRight),
+      (KeyCode::D, PlayerAction::MoveRight),
+      (KeyCode::Up, PlayerAction::Jump),
+      (KeyCode::W, PlayerAction::Jump),
+    ]);
 
     let player = commands
       .spawn((
@@ -40,12 +47,16 @@ pub fn spawn_player(
           input_map,
         },
         PlayerBundle {
-          transform: Transform::from_xyz(0., 0., GameLayer::Player as i32 as f32),
+          spatial: SpatialBundle {
+            transform: Transform::from_xyz(0., 0., GameLayer::Player as i32 as f32),
+            ..default()
+          },
           ..default()
         },
-        RigidBody::Dynamic,
         Collider::cuboid(8., 16.),
-        // CollisionGroups::new(physics::PLAYER, physics::PICKABLE | physics::ENVIRONMENT),
+        RigidBody::KinematicPositionBased,
+        KinematicCharacterControllerOutput::default(), //  this should be auto added by rapier
+        KinematicCharacterController::default(),
       ))
       .with_children(|parent| {
         parent.spawn(SpriteBundle {

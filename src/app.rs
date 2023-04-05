@@ -4,10 +4,11 @@ use bevy_rapier2d::{
   prelude::{NoUserData, RapierPhysicsPlugin},
   render::RapierDebugRenderPlugin,
 };
+use leafwing_input_manager::prelude::InputManagerPlugin;
 
 use crate::{
   config::GameConfig,
-  pawns::PawnsPlugin,
+  pawns::{player::controller::PlayerAction, PawnsPlugin},
   states::{GameStates, GameStatesPlugin},
 };
 
@@ -32,6 +33,7 @@ pub fn get_app() -> App {
     .add_plugins(PawnsPlugin)
     .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugin(TilemapPlugin)
+    .add_plugin(InputManagerPlugin::<PlayerAction>::default())
     .add_startup_system(setup);
 
   #[cfg(feature = "debug_physics")]

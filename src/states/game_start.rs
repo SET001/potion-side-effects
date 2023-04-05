@@ -19,7 +19,7 @@ pub struct GameStartState;
 impl Plugin for GameStartState {
   fn build(&self, app: &mut App) {
     app.add_systems(
-      (background, level, on_enter)
+      (background, level, on_enter, start_level)
         .chain()
         .in_schedule(OnEnter(THIS_STATE)),
     );
@@ -111,4 +111,9 @@ fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Re
     transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
     ..Default::default()
   });
+}
+
+fn start_level(mut next_state: ResMut<NextState<GameStates>>) {
+  info!("Starting game...");
+  *next_state = NextState(Some(GameStates::GameActive));
 }
