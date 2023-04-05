@@ -44,7 +44,7 @@ pub fn spawn_player(
           ..default()
         },
         RigidBody::Dynamic,
-        Collider::cuboid(8., 8.),
+        Collider::cuboid(8., 16.),
         // CollisionGroups::new(physics::PLAYER, physics::PICKABLE | physics::ENVIRONMENT),
       ))
       .with_children(|parent| {
