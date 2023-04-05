@@ -6,3 +6,5 @@ pub enum PlayerAction {
   MoveRight,
   Jump,
 }
+
+pub fn player_controller() {}
