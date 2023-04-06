@@ -7,7 +7,10 @@ use leafwing_input_manager::{
   InputManagerBundle,
 };
 
-use crate::core::{health::Health, layers::GameLayer};
+use crate::{
+  config::GameConfig,
+  core::{health::Health, layers::GameLayer},
+};
 
 use super::controller::PlayerAction;
 
@@ -29,6 +32,7 @@ pub fn spawn_player(
   mut events: EventReader<PlayerSpawnEvent>,
   mut commands: Commands,
   asset_server: Res<AssetServer>,
+  config: Res<GameConfig>,
 ) {
   for event in events.iter() {
     let input_map = InputMap::new([
@@ -48,7 +52,11 @@ pub fn spawn_player(
         },
         PlayerBundle {
           spatial: SpatialBundle {
-            transform: Transform::from_xyz(0., 0., GameLayer::Player as i32 as f32),
+            transform: Transform {
+              translation: Vec3::new(0., 0., GameLayer::Player as i32 as f32),
+              scale: Vec3::splat(config.scale),
+              ..default()
+            },
             ..default()
           },
           ..default()
