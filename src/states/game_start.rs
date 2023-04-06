@@ -11,6 +11,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
   config::GameConfig,
+  core::LevelTilemapMarker,
   pawns::{
     player::spawn::PlayerSpawnEvent,
     potion::{spawn::PotionSpawnEvent, PotionType},
@@ -41,9 +42,20 @@ fn on_enter(
     .spawn((Name::new("Game Level"), SpatialBundle::default()))
     .id();
   ew_spawn_player.send(PlayerSpawnEvent { root });
+
+  ew_potion_spawn.send(PotionSpawnEvent {
+    potion_type: PotionType::Red,
+    tile_pos: UVec2::default(),
+  });
+
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Blue,
-    translation: Vec2::default(),
+    tile_pos: UVec2::new(40, 40),
+  });
+
+  ew_potion_spawn.send(PotionSpawnEvent {
+    potion_type: PotionType::Green,
+    tile_pos: UVec2::new(5, 20),
   });
 }
 
@@ -97,16 +109,19 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
     spawn_platform_block(x + 20, 23);
   }
 
-  commands.entity(tilemap_entity).insert(TilemapBundle {
-    grid_size,
-    map_type,
-    size: map_size,
-    storage: tile_storage,
-    texture: TilemapTexture::Single(texture_handle),
-    tile_size,
-    transform: map_transform,
-    ..Default::default()
-  });
+  commands.entity(tilemap_entity).insert((
+    LevelTilemapMarker,
+    TilemapBundle {
+      grid_size,
+      map_type,
+      size: map_size,
+      storage: tile_storage,
+      texture: TilemapTexture::Single(texture_handle),
+      tile_size,
+      transform: map_transform,
+      ..Default::default()
+    },
+  ));
 }
 
 fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
