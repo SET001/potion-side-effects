@@ -14,7 +14,7 @@ impl Default for GameConfig {
     GameConfig {
       title: "Bevy potions side effect".into(),
       tile_size: UVec2::new(16, 16),
-      map_size: UVec2::new(50, 50),
+      map_size: UVec2::new(40, 40),
       gravity: -4.,
       move_speed: 200.,
     }

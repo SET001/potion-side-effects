@@ -6,11 +6,14 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bevy = { version = "0.10.1", features = ["dynamic_linking"]}
+bevy = { version = "0.10.1"}
 bevy_rapier2d = "0.21.0"
-bevy_ecs_tilemap = "0.10.0"
+bevy_ecs_tilemap = { version = "0.10.0", features=["atlas"]}
 leafwing-input-manager = { version="0.9.1" }
-rand = "0.8.5"
+wasm-bindgen = "0.2.84"
 
 [features]
 debug_physics = []
+
+[target.wasm32-unknown-unknown]
+runner = "wasm-server-runner"
