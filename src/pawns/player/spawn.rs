@@ -1,3 +1,4 @@
+use benimator::FrameRate;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
   Collider, KinematicCharacterController, KinematicCharacterControllerOutput, RigidBody,
@@ -7,7 +8,11 @@ use leafwing_input_manager::{
   InputManagerBundle,
 };
 
-use crate::core::{health::Health, layers::GameLayer};
+use crate::core::{
+  animation::{Animation, AnimationState},
+  health::Health,
+  layers::GameLayer,
+};
 
 use super::controller::PlayerAction;
 
@@ -28,6 +33,7 @@ pub struct PlayerSpawnEvent {
 pub fn spawn_player(
   mut events: EventReader<PlayerSpawnEvent>,
   mut commands: Commands,
+  mut textures: ResMut<Assets<TextureAtlas>>,
   asset_server: Res<AssetServer>,
 ) {
   for event in events.iter() {
@@ -59,10 +65,28 @@ pub fn spawn_player(
         KinematicCharacterController::default(),
       ))
       .with_children(|parent| {
-        parent.spawn(SpriteBundle {
-          texture: asset_server.load("guy.png"),
-          ..Default::default()
-        });
+        let animation = Animation(benimator::Animation::from_indices(
+          (2..5).chain((4..0).rev()),
+          FrameRate::from_fps(20 as f64),
+        ));
+
+        // TextureAtlasSprite::f
+
+        parent.spawn((
+          animation,
+          AnimationState::default(),
+          SpriteSheetBundle {
+            texture_atlas: textures.add(TextureAtlas::from_grid(
+              asset_server.load("player.png"),
+              Vec2::new(16.0, 20.0),
+              11,
+              1,
+              None,
+              None,
+            )),
+            ..default()
+          },
+        ));
       })
       .id();
     commands.entity(event.root).add_child(player);

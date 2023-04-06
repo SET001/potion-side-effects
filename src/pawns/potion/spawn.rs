@@ -52,10 +52,19 @@ pub fn spawn_potion(
           .extend(GameLayer::Potion as i32 as f32);
 
       trace!("spawning potion at {}:{}", event.tile_pos, translation);
+      let transform = Transform {
+        translation,
+        scale: Vec3 {
+          x: 2.0,
+          y: 2.,
+          z: 2.,
+        },
+        ..default()
+      };
       commands
         .spawn(PotionBundle {
           spatial: SpatialBundle {
-            transform: Transform::from_translation(translation),
+            transform,
             ..default()
           },
           ..default()

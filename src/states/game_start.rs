@@ -60,7 +60,7 @@ fn on_enter(
 }
 
 fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
-  let texture_handle: Handle<Image> = asset_server.load("tiles.png");
+  let texture_handle: Handle<Image> = asset_server.load("brick.png");
   let map_size = TilemapSize::from(config.map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let mut tile_storage = TileStorage::empty(map_size);
@@ -75,7 +75,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
       .spawn((
         TileBundle {
           position: tile_pos,
-          texture_index: TileTextureIndex(19),
+          texture_index: TileTextureIndex(0),
           tilemap_id: TilemapId(tilemap_entity),
           ..Default::default()
         },
@@ -125,7 +125,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
 }
 
 fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
-  let texture_handle: Handle<Image> = asset_server.load("tiles.png");
+  let texture_handle: Handle<Image> = asset_server.load("brick.png");
   let map_size = TilemapSize::from(config.map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let mut tile_storage = TileStorage::empty(map_size);
@@ -136,7 +136,7 @@ fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Re
       let tile_entity = commands
         .spawn(TileBundle {
           position: tile_pos,
-          texture_index: TileTextureIndex(40),
+          texture_index: TileTextureIndex(3),
           tilemap_id: TilemapId(tilemap_entity),
           ..Default::default()
         })
