@@ -8,6 +8,7 @@ use leafwing_input_manager::prelude::InputManagerPlugin;
 
 use crate::{
   config::GameConfig,
+  core::animation::{animate, AnimationEndedEvent},
   pawns::{player::controller::PlayerAction, PawnsPlugin},
   states::{GameStates, GameStatesPlugin},
 };
@@ -34,7 +35,9 @@ pub fn get_app() -> App {
     .add_plugin(RapierPhysicsPlugin::<NoUserData>::pixels_per_meter(100.0))
     .add_plugin(TilemapPlugin)
     .add_plugin(InputManagerPlugin::<PlayerAction>::default())
-    .add_startup_system(setup);
+    .add_startup_system(setup)
+    .add_event::<AnimationEndedEvent>()
+    .add_system(animate);
 
   #[cfg(feature = "debug_physics")]
   app.add_plugin(RapierDebugRenderPlugin::default());

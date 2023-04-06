@@ -9,7 +9,14 @@ use bevy_ecs_tilemap::{
 };
 use bevy_rapier2d::prelude::*;
 
-use crate::{config::GameConfig, pawns::player::spawn::PlayerSpawnEvent};
+use crate::{
+  config::GameConfig,
+  core::LevelTilemapMarker,
+  pawns::{
+    player::spawn::PlayerSpawnEvent,
+    potion::{spawn::PotionSpawnEvent, PotionType},
+  },
+};
 
 use super::GameStates;
 const THIS_STATE: GameStates = GameStates::GameStart;
@@ -26,11 +33,30 @@ impl Plugin for GameStartState {
   }
 }
 
-fn on_enter(mut commands: Commands, mut ew_spawn_player: EventWriter<PlayerSpawnEvent>) {
+fn on_enter(
+  mut commands: Commands,
+  mut ew_spawn_player: EventWriter<PlayerSpawnEvent>,
+  mut ew_potion_spawn: EventWriter<PotionSpawnEvent>,
+) {
   let root = commands
     .spawn((Name::new("Game Level"), SpatialBundle::default()))
     .id();
   ew_spawn_player.send(PlayerSpawnEvent { root });
+
+  ew_potion_spawn.send(PotionSpawnEvent {
+    potion_type: PotionType::Red,
+    tile_pos: UVec2::default(),
+  });
+
+  ew_potion_spawn.send(PotionSpawnEvent {
+    potion_type: PotionType::Blue,
+    tile_pos: UVec2::new(40, 40),
+  });
+
+  ew_potion_spawn.send(PotionSpawnEvent {
+    potion_type: PotionType::Green,
+    tile_pos: UVec2::new(5, 20),
+  });
 }
 
 fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
@@ -79,16 +105,23 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
     spawn_platform_block(x + 12, 10);
   }
 
-  commands.entity(tilemap_entity).insert(TilemapBundle {
-    grid_size,
-    map_type,
-    size: map_size,
-    storage: tile_storage,
-    texture: TilemapTexture::Single(texture_handle),
-    tile_size,
-    transform: map_transform,
-    ..Default::default()
-  });
+  for x in 0..15 {
+    spawn_platform_block(x + 20, 23);
+  }
+
+  commands.entity(tilemap_entity).insert((
+    LevelTilemapMarker,
+    TilemapBundle {
+      grid_size,
+      map_type,
+      size: map_size,
+      storage: tile_storage,
+      texture: TilemapTexture::Single(texture_handle),
+      tile_size,
+      transform: map_transform,
+      ..Default::default()
+    },
+  ));
 }
 
 fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
