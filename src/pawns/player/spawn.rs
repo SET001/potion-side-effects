@@ -67,21 +67,22 @@ pub fn spawn_player(
           },
           ..default()
         },
-        Collider::cuboid(8., 16.),
+        Collider::cuboid(16., 20.),
         RigidBody::KinematicPositionBased,
         KinematicCharacterControllerOutput::default(), //  this should be auto added by rapier
         KinematicCharacterController::default(),
       ))
       .with_children(|parent| {
         let animation = Animation(benimator::Animation::from_indices(
-          (2..5).chain((4..0).rev()),
-          FrameRate::from_fps(20 as f64),
+          (0..2),
+          FrameRate::from_fps(8 as f64),
         ));
 
         parent.spawn((
           animation,
           AnimationState::default(),
           SpriteSheetBundle {
+            transform: Transform::from_scale(Vec3::splat(config.scale)),
             texture_atlas: textures.add(TextureAtlas::from_grid(
               asset_server.load("player.png"),
               Vec2::new(16.0, 20.0),
