@@ -1,7 +1,7 @@
 use benimator::FrameRate;
 use bevy::prelude::*;
 use bevy_ecs_tilemap::prelude::{
-  get_tilemap_center_transform, TilemapGridSize, TilemapSize, TilemapType,
+  get_tilemap_center_transform, TilemapGridSize, TilemapSize, TilemapTileSize, TilemapType,
 };
 use bevy_ecs_tilemap::tiles::TilePos;
 

@@ -45,17 +45,17 @@ fn on_enter(
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Red,
-    tile_pos: UVec2::default(),
+    tile_pos: UVec2::new(20, 11),
   });
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Blue,
-    tile_pos: UVec2::new(40, 40),
+    tile_pos: UVec2::new(30, 24),
   });
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Green,
-    tile_pos: UVec2::new(5, 20),
+    tile_pos: UVec2::new(20, 24),
   });
 }
 
