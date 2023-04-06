@@ -5,6 +5,7 @@ use bevy_ecs_tilemap::prelude::{
 };
 use bevy_ecs_tilemap::tiles::TilePos;
 
+use crate::config::GameConfig;
 use crate::core::animation::{Animation, AnimationState};
 use crate::core::layers::GameLayer;
 use crate::core::LevelTilemapMarker;
@@ -30,6 +31,7 @@ pub fn spawn_potion(
   mut textures: ResMut<Assets<TextureAtlas>>,
   q_tilemap: Query<(&TilemapGridSize, &TilemapSize, &TilemapType), With<LevelTilemapMarker>>,
   asset_server: Res<AssetServer>,
+  config: Res<GameConfig>,
 ) {
   if let Ok((grid_size, map_size, map_type)) = q_tilemap.get_single() {
     let map_transform = get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0);
@@ -52,10 +54,23 @@ pub fn spawn_potion(
           .extend(GameLayer::Potion as i32 as f32);
 
       trace!("spawning potion at {}:{}", event.tile_pos, translation);
+      let transform = Transform {
+        translation,
+        scale: Vec3 {
+          x: 2.0,
+          y: 2.,
+          z: 2.,
+        },
+        ..default()
+      };
       commands
         .spawn(PotionBundle {
           spatial: SpatialBundle {
-            transform: Transform::from_translation(translation),
+            transform: Transform {
+              translation: translation * config.scale,
+              scale: Vec3::splat(config.scale),
+              ..default()
+            },
             ..default()
           },
           ..default()

@@ -1,4 +1,4 @@
-use bevy::prelude::*;
+use bevy::{prelude::*, transform};
 use bevy_ecs_tilemap::{
   prelude::{
     get_tilemap_center_transform, TilemapGridSize, TilemapId, TilemapSize, TilemapTexture,
@@ -11,7 +11,7 @@ use bevy_rapier2d::prelude::*;
 
 use crate::{
   config::GameConfig,
-  core::LevelTilemapMarker,
+  core::{layers::GameLayer, LevelTilemapMarker},
   pawns::{
     player::spawn::PlayerSpawnEvent,
     potion::{spawn::PotionSpawnEvent, PotionType},
@@ -45,29 +45,36 @@ fn on_enter(
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Red,
-    tile_pos: UVec2::default(),
+    tile_pos: UVec2::new(20, 11),
   });
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Blue,
-    tile_pos: UVec2::new(40, 40),
+    tile_pos: UVec2::new(7, 16),
   });
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Green,
-    tile_pos: UVec2::new(5, 20),
+    tile_pos: UVec2::new(1, 1),
   });
 }
 
 fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
-  let texture_handle: Handle<Image> = asset_server.load("tiles.png");
+  let texture_handle: Handle<Image> = asset_server.load("brick.png");
   let map_size = TilemapSize::from(config.map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let mut tile_storage = TileStorage::empty(map_size);
   let tile_size = TilemapTileSize::from(config.tile_size.as_vec2());
   let grid_size: TilemapGridSize = tile_size.clone().into();
   let map_type = TilemapType::default();
-  let map_transform = get_tilemap_center_transform(&map_size, &grid_size, &map_type, 10.0);
+  let mut map_transform = get_tilemap_center_transform(
+    &map_size,
+    &grid_size,
+    &map_type,
+    GameLayer::Level as i32 as f32,
+  );
+  map_transform.scale = Vec3::splat(config.scale);
+  map_transform.translation *= config.scale;
 
   let mut spawn_platform_block = |x: u32, y: u32| {
     let tile_pos = TilePos { x, y };
@@ -75,7 +82,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
       .spawn((
         TileBundle {
           position: tile_pos,
-          texture_index: TileTextureIndex(19),
+          texture_index: TileTextureIndex(0),
           tilemap_id: TilemapId(tilemap_entity),
           ..Default::default()
         },
@@ -84,7 +91,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
         ),
         GlobalTransform::default(),
         RigidBody::Fixed,
-        Collider::cuboid(8., 8.),
+        Collider::cuboid(8. * config.scale, 8. * config.scale),
       ))
       .id();
     tile_storage.set(&tile_pos, tile_entity);
@@ -106,7 +113,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
   }
 
   for x in 0..15 {
-    spawn_platform_block(x + 20, 23);
+    spawn_platform_block(x + 4, 15);
   }
 
   commands.entity(tilemap_entity).insert((
@@ -125,7 +132,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
 }
 
 fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<GameConfig>) {
-  let texture_handle: Handle<Image> = asset_server.load("tiles.png");
+  let texture_handle: Handle<Image> = asset_server.load("brick.png");
   let map_size = TilemapSize::from(config.map_size);
   let tilemap_entity = commands.spawn_empty().id();
   let mut tile_storage = TileStorage::empty(map_size);
@@ -136,7 +143,7 @@ fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Re
       let tile_entity = commands
         .spawn(TileBundle {
           position: tile_pos,
-          texture_index: TileTextureIndex(40),
+          texture_index: TileTextureIndex(3),
           tilemap_id: TilemapId(tilemap_entity),
           ..Default::default()
         })
@@ -149,6 +156,14 @@ fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Re
   let grid_size = tile_size.into();
   let map_type = TilemapType::default();
 
+  let mut transform = get_tilemap_center_transform(
+    &map_size,
+    &grid_size,
+    &map_type,
+    GameLayer::Background as i32 as f32,
+  );
+  transform.scale = Vec3::splat(config.scale);
+  transform.translation *= config.scale;
   commands.entity(tilemap_entity).insert(TilemapBundle {
     grid_size,
     map_type,
@@ -156,7 +171,7 @@ fn background(mut commands: Commands, asset_server: Res<AssetServer>, config: Re
     storage: tile_storage,
     texture: TilemapTexture::Single(texture_handle),
     tile_size,
-    transform: get_tilemap_center_transform(&map_size, &grid_size, &map_type, 0.0),
+    transform,
     ..Default::default()
   });
 }

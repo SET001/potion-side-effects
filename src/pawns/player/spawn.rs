@@ -1,3 +1,4 @@
+use benimator::FrameRate;
 use bevy::prelude::*;
 use bevy_rapier2d::prelude::{
   Collider, KinematicCharacterController, KinematicCharacterControllerOutput, RigidBody,
@@ -7,7 +8,14 @@ use leafwing_input_manager::{
   InputManagerBundle,
 };
 
-use crate::core::{health::Health, layers::GameLayer};
+use crate::{
+  config::GameConfig,
+  core::{
+    animation::{Animation, AnimationState},
+    health::Health,
+    layers::GameLayer,
+  },
+};
 
 use super::controller::PlayerAction;
 
@@ -28,7 +36,9 @@ pub struct PlayerSpawnEvent {
 pub fn spawn_player(
   mut events: EventReader<PlayerSpawnEvent>,
   mut commands: Commands,
+  mut textures: ResMut<Assets<TextureAtlas>>,
   asset_server: Res<AssetServer>,
+  config: Res<GameConfig>,
 ) {
   for event in events.iter() {
     let input_map = InputMap::new([
@@ -48,7 +58,11 @@ pub fn spawn_player(
         },
         PlayerBundle {
           spatial: SpatialBundle {
-            transform: Transform::from_xyz(0., 0., GameLayer::Player as i32 as f32),
+            transform: Transform {
+              translation: Vec3::new(0., 0., GameLayer::Player as i32 as f32),
+              scale: Vec3::splat(config.scale),
+              ..default()
+            },
             ..default()
           },
           ..default()
@@ -59,10 +73,26 @@ pub fn spawn_player(
         KinematicCharacterController::default(),
       ))
       .with_children(|parent| {
-        parent.spawn(SpriteBundle {
-          texture: asset_server.load("guy.png"),
-          ..Default::default()
-        });
+        let animation = Animation(benimator::Animation::from_indices(
+          (2..5).chain((4..0).rev()),
+          FrameRate::from_fps(20 as f64),
+        ));
+
+        parent.spawn((
+          animation,
+          AnimationState::default(),
+          SpriteSheetBundle {
+            texture_atlas: textures.add(TextureAtlas::from_grid(
+              asset_server.load("player.png"),
+              Vec2::new(16.0, 20.0),
+              11,
+              1,
+              None,
+              None,
+            )),
+            ..default()
+          },
+        ));
       })
       .id();
     commands.entity(event.root).add_child(player);
