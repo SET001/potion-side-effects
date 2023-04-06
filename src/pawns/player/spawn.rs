@@ -78,8 +78,6 @@ pub fn spawn_player(
           FrameRate::from_fps(20 as f64),
         ));
 
-        // TextureAtlasSprite::f
-
         parent.spawn((
           animation,
           AnimationState::default(),
