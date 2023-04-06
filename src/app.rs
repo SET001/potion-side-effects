@@ -1,9 +1,8 @@
 use bevy::prelude::*;
 use bevy_ecs_tilemap::TilemapPlugin;
-use bevy_rapier2d::{
-  prelude::{NoUserData, RapierPhysicsPlugin},
-  render::RapierDebugRenderPlugin,
-};
+use bevy_rapier2d::prelude::{NoUserData, RapierPhysicsPlugin};
+#[cfg(feature = "debug_physics")]
+use bevy_rapier2d::render::RapierDebugRenderPlugin;
 use leafwing_input_manager::prelude::InputManagerPlugin;
 
 use crate::{
