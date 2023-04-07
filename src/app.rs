@@ -8,7 +8,7 @@ use leafwing_input_manager::prelude::InputManagerPlugin;
 use crate::{
   config::GameConfig,
   core::animation::{animate, AnimationEndedEvent},
-  pawns::{player::controller::PlayerAction, PawnsPlugin},
+  pawns::{dude::controller::PlayerAction, PawnsPlugin},
   states::{GameStates, GameStatesPlugin},
 };
 

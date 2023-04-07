@@ -1,7 +1,7 @@
-pub mod player;
+pub mod dude;
 pub mod potion;
 
-use self::{player::PlayerPlugin, potion::PotionPlugin};
+use self::{dude::PlayerPlugin, potion::PotionPlugin};
 use bevy::{app::PluginGroupBuilder, prelude::*};
 
 pub struct PawnsPlugin;

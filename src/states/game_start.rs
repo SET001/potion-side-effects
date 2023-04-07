@@ -13,7 +13,7 @@ use crate::{
   config::GameConfig,
   core::{layers::GameLayer, LevelTilemapMarker},
   pawns::{
-    player::spawn::PlayerSpawnEvent,
+    dude::spawn::DudeSpawnEvent,
     potion::{spawn::PotionSpawnEvent, PotionType},
   },
 };
@@ -35,13 +35,13 @@ impl Plugin for GameStartState {
 
 fn on_enter(
   mut commands: Commands,
-  mut ew_spawn_player: EventWriter<PlayerSpawnEvent>,
+  mut ew_spawn_player: EventWriter<DudeSpawnEvent>,
   mut ew_potion_spawn: EventWriter<PotionSpawnEvent>,
 ) {
   let root = commands
     .spawn((Name::new("Game Level"), SpatialBundle::default()))
     .id();
-  ew_spawn_player.send(PlayerSpawnEvent { root });
+  ew_spawn_player.send(DudeSpawnEvent { root });
 
   ew_potion_spawn.send(PotionSpawnEvent {
     potion_type: PotionType::Red,
