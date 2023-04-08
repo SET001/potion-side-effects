@@ -12,6 +12,7 @@ use crate::{
   config::GameConfig,
   core::{
     animation::{Animation, AnimationState},
+    camera_follow::CameraFollow,
     health::Health,
     layers::GameLayer,
   },
@@ -30,6 +31,7 @@ pub struct DudeBundle {
   pub dude: Dude,
   pub name: Name,
   pub health: Health,
+  pub camera_follow: CameraFollow,
 }
 
 pub struct DudeSpawnEvent {
@@ -67,6 +69,9 @@ pub fn spawn_player(
               ..default()
             },
             ..default()
+          },
+          camera_follow: CameraFollow {
+            position: Vec2::new(0., 300.),
           },
           ..default()
         },
