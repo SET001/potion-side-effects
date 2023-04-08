@@ -1,6 +1,6 @@
 use bevy::prelude::*;
 
-use crate::pawns::player::controller::player_controller;
+use crate::pawns::dude::controller::player_controller;
 
 use super::GameStates;
 

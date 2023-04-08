@@ -17,24 +17,27 @@ use crate::{
   },
 };
 
-use super::controller::PlayerAction;
+use super::{controller::PlayerAction, states::DudeState};
 
 #[derive(Component, Default)]
-pub struct Player;
+pub struct Dude {
+  pub state: DudeState,
+}
+
 #[derive(Bundle, Default)]
-pub struct PlayerBundle {
+pub struct DudeBundle {
   pub spatial: SpatialBundle,
-  pub player: Player,
+  pub dude: Dude,
   pub name: Name,
   pub health: Health,
 }
 
-pub struct PlayerSpawnEvent {
+pub struct DudeSpawnEvent {
   pub root: Entity,
 }
 
 pub fn spawn_player(
-  mut events: EventReader<PlayerSpawnEvent>,
+  mut events: EventReader<DudeSpawnEvent>,
   mut commands: Commands,
   mut textures: ResMut<Assets<TextureAtlas>>,
   asset_server: Res<AssetServer>,
@@ -56,7 +59,7 @@ pub fn spawn_player(
           action_state: ActionState::default(),
           input_map,
         },
-        PlayerBundle {
+        DudeBundle {
           spatial: SpatialBundle {
             transform: Transform {
               translation: Vec3::new(0., 0., GameLayer::Player as i32 as f32),
@@ -67,21 +70,20 @@ pub fn spawn_player(
           },
           ..default()
         },
-        Collider::cuboid(8., 16.),
+        Collider::cuboid(16., 20.),
         RigidBody::KinematicPositionBased,
         KinematicCharacterControllerOutput::default(), //  this should be auto added by rapier
         KinematicCharacterController::default(),
       ))
       .with_children(|parent| {
-        let animation = Animation(benimator::Animation::from_indices(
-          (2..5).chain((4..0).rev()),
-          FrameRate::from_fps(20 as f64),
-        ));
-
         parent.spawn((
-          animation,
+          Animation(benimator::Animation::from_indices(
+            0..2,
+            FrameRate::from_fps(8 as f64),
+          )),
           AnimationState::default(),
           SpriteSheetBundle {
+            transform: Transform::from_scale(Vec3::splat(config.scale)),
             texture_atlas: textures.add(TextureAtlas::from_grid(
               asset_server.load("player.png"),
               Vec2::new(16.0, 20.0),
