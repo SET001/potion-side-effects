@@ -26,24 +26,36 @@ pub fn player_controller(
     &KinematicCharacterControllerOutput,
     &ActionState<PlayerAction>,
     &Dude,
+    &Children,
     Entity,
   )>,
   mut q_jump: Query<&mut Jump>,
   mut ew_update: EventWriter<DudeStateUpdateEvent>,
   config: Res<GameConfig>,
   time: Res<Time>,
+  mut q_ta: Query<&mut TextureAtlasSprite>,
 ) {
-  if let Ok((mut controller, controller_output, action_state, player, player_entity)) =
+  if let Ok((mut controller, controller_output, action_state, player, children, player_entity)) =
     q_player.get_single_mut()
   {
     let mut translation = Vec2::new(0., config.gravity);
     let move_speed = config.move_speed * time.delta_seconds();
     let mut dude_state = DudeState::Idle;
     if action_state.pressed(PlayerAction::MoveRight) {
+      for child in children.iter() {
+        if let Ok(mut ta) = q_ta.get_mut(*child) {
+          ta.flip_x = false;
+        };
+      }
       translation.x += move_speed;
       dude_state = DudeState::Running;
     }
     if action_state.pressed(PlayerAction::MoveLeft) {
+      for child in children.iter() {
+        if let Ok(mut ta) = q_ta.get_mut(*child) {
+          ta.flip_x = true;
+        };
+      }
       translation.x -= move_speed;
       dude_state = DudeState::Running;
     }
