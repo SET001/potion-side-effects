@@ -37,7 +37,12 @@ fn on_enter(
   mut commands: Commands,
   mut ew_spawn_player: EventWriter<DudeSpawnEvent>,
   mut ew_potion_spawn: EventWriter<PotionSpawnEvent>,
+  config: Res<GameConfig>,
 ) {
+  let gravity = (-2. * config.jump_height) / config.jump_height_reach_time.sqrt();
+  let velocity = (2. * config.jump_height) / config.jump_height_reach_time;
+  info!("calculated gravity: {gravity} initial velocity: {velocity}");
+
   let root = commands
     .spawn((Name::new("Game Level"), SpatialBundle::default()))
     .id();
@@ -109,7 +114,7 @@ fn level(mut commands: Commands, asset_server: Res<AssetServer>, config: Res<Gam
   }
 
   for x in 0..10 {
-    spawn_platform_block(x + 12, 10);
+    spawn_platform_block(x + 10, 10);
   }
 
   for x in 0..15 {

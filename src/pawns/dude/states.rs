@@ -30,9 +30,10 @@ pub fn update_player_state(
       dude.state = event.new_state.clone();
       for &child in children.into_iter() {
         if let Ok(mut animation) = q_animation.get_mut(child) {
-          info!(
+          trace!(
             "get dude state upate from {:?} to {:?}",
-            event.old_state, event.new_state
+            event.old_state,
+            event.new_state
           );
           let anim = match event.new_state {
             DudeState::Running => benimator::Animation::from_indices(

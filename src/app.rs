@@ -10,6 +10,7 @@ use crate::{
   core::{
     animation::{animate, AnimationEndedEvent},
     camera_follow,
+    jump::jumping,
   },
   pawns::{dude::controller::PlayerAction, PawnsPlugin},
   states::{GameStates, GameStatesPlugin},
@@ -40,7 +41,7 @@ pub fn get_app() -> App {
     .add_startup_system(setup)
     .add_event::<AnimationEndedEvent>()
     .add_system(animate)
-    .add_system(camera_follow::camera_follow.in_set(OnUpdate(GameStates::GameActive)));
+    .add_systems((camera_follow::camera_follow, jumping).in_set(OnUpdate(GameStates::GameActive)));
 
   #[cfg(feature = "debug_physics")]
   app.add_plugin(RapierDebugRenderPlugin::default());

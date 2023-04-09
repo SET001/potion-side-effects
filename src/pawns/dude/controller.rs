@@ -2,7 +2,7 @@ use bevy::prelude::*;
 use bevy_rapier2d::prelude::*;
 use leafwing_input_manager::{prelude::ActionState, Actionlike};
 
-use crate::config::GameConfig;
+use crate::{config::GameConfig, core::jump::Jump};
 
 use super::{
   spawn::Dude,
@@ -16,9 +16,6 @@ pub enum PlayerAction {
   Jump,
 }
 
-#[derive(Component)]
-pub struct Jump(pub Vec2);
-
 pub fn player_controller(
   mut commands: Commands,
   mut q_player: Query<(
@@ -29,11 +26,11 @@ pub fn player_controller(
     &Children,
     Entity,
   )>,
-  mut q_jump: Query<&mut Jump>,
   mut ew_update: EventWriter<DudeStateUpdateEvent>,
+  mut q_ta: Query<&mut TextureAtlasSprite>,
+  q_jump: Query<&mut Jump>,
   config: Res<GameConfig>,
   time: Res<Time>,
-  mut q_ta: Query<&mut TextureAtlasSprite>,
 ) {
   if let Ok((mut controller, controller_output, action_state, player, children, player_entity)) =
     q_player.get_single_mut()
@@ -41,31 +38,46 @@ pub fn player_controller(
     let mut translation = Vec2::new(0., config.gravity);
     let move_speed = config.move_speed * time.delta_seconds();
     let mut dude_state = DudeState::Idle;
-    if action_state.pressed(PlayerAction::MoveRight) {
-      for child in children.iter() {
-        if let Ok(mut ta) = q_ta.get_mut(*child) {
-          ta.flip_x = false;
-        };
-      }
-      translation.x += move_speed;
-      dude_state = DudeState::Running;
-    }
-    if action_state.pressed(PlayerAction::MoveLeft) {
-      for child in children.iter() {
-        if let Ok(mut ta) = q_ta.get_mut(*child) {
-          ta.flip_x = true;
-        };
-      }
-      translation.x -= move_speed;
-      dude_state = DudeState::Running;
-    }
     if controller_output.grounded {
+      if action_state.pressed(PlayerAction::MoveRight) {
+        for child in children.iter() {
+          if let Ok(mut ta) = q_ta.get_mut(*child) {
+            ta.flip_x = false;
+          };
+        }
+        translation.x += move_speed;
+        dude_state = DudeState::Running;
+      }
+      if action_state.pressed(PlayerAction::MoveLeft) {
+        for child in children.iter() {
+          if let Ok(mut ta) = q_ta.get_mut(*child) {
+            ta.flip_x = true;
+          };
+        }
+        translation.x -= move_speed;
+        dude_state = DudeState::Running;
+      }
       if action_state.just_pressed(PlayerAction::Jump) {
-        commands
-          .entity(player_entity)
-          .insert(Jump(Vec2::new(translation.x, 5.)));
+        info!("inserting jump component...");
+        commands.entity(player_entity).insert(Jump {
+          initial_velocity: Vec2::new(0., 150.),
+          start: time.elapsed(),
+          ..default()
+        });
+      }
+    } else {
+    }
+
+    if let Ok(jump) = q_jump.get_single() {
+      if (time.elapsed() - jump.start).as_millis() > 50 && controller_output.grounded {
+        commands.entity(player_entity).remove::<Jump>();
+        info!("removing jump component");
+      } else {
+        info!("jump.velocity {}", jump.velocity);
+        translation += jump.velocity;
       }
     }
+
     if player.state != dude_state {
       ew_update.send(DudeStateUpdateEvent {
         new_state: dude_state,
@@ -73,15 +85,7 @@ pub fn player_controller(
         entity: player_entity,
       });
     }
-    if let Ok(mut jump) = q_jump.get_single_mut() {
-      let jump_speed = 0.1;
-      if jump.0.y < 0. + jump_speed {
-        commands.entity(player_entity).remove::<Jump>();
-      } else {
-        jump.0.y -= jump_speed;
-        translation.y += jump.0.y * 2.;
-      }
-    }
+
     controller.translation = Some(translation);
   }
 }
