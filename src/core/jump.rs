@@ -15,7 +15,7 @@ pub fn jumping(config: Res<GameConfig>, mut q_jump: Query<&mut Jump>, time: Res<
   for mut jump in q_jump.iter_mut() {
     let duration = time.elapsed() - jump.start;
     jump.velocity =
-      Vec2::new(0., config.gravity * (duration.as_millis() as f32) / 10.) + jump.initial_velocity;
+      10. * (Vec2::new(0., config.gravity * (duration.as_millis() as f32)) + jump.initial_velocity);
 
     info!("jump duration {}", duration.as_millis());
   }

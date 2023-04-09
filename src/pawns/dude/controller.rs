@@ -35,7 +35,7 @@ pub fn player_controller(
   if let Ok((mut controller, controller_output, action_state, player, children, player_entity)) =
     q_player.get_single_mut()
   {
-    let mut translation = Vec2::new(0., config.gravity);
+    let mut translation = Vec2::new(0., -10.);
     let move_speed = config.move_speed * time.delta_seconds();
     let mut dude_state = DudeState::Idle;
     if controller_output.grounded {
@@ -60,7 +60,7 @@ pub fn player_controller(
       if action_state.just_pressed(PlayerAction::Jump) {
         info!("inserting jump component...");
         commands.entity(player_entity).insert(Jump {
-          initial_velocity: Vec2::new(0., 150.),
+          initial_velocity: Vec2::new(0., config.jump_initial_velocity),
           start: time.elapsed(),
           ..default()
         });
@@ -69,12 +69,12 @@ pub fn player_controller(
     }
 
     if let Ok(jump) = q_jump.get_single() {
-      if (time.elapsed() - jump.start).as_millis() > 50 && controller_output.grounded {
+      if (time.elapsed() - jump.start).as_millis() > 100 && controller_output.grounded {
         commands.entity(player_entity).remove::<Jump>();
         info!("removing jump component");
       } else {
         info!("jump.velocity {}", jump.velocity);
-        translation += jump.velocity;
+        translation = jump.velocity;
       }
     }
 

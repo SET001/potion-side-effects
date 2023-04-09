@@ -37,11 +37,19 @@ fn on_enter(
   mut commands: Commands,
   mut ew_spawn_player: EventWriter<DudeSpawnEvent>,
   mut ew_potion_spawn: EventWriter<PotionSpawnEvent>,
-  config: Res<GameConfig>,
+  mut config: ResMut<GameConfig>,
 ) {
-  let gravity = (-2. * config.jump_height) / config.jump_height_reach_time.sqrt();
-  let velocity = (2. * config.jump_height) / config.jump_height_reach_time;
-  info!("calculated gravity: {gravity} initial velocity: {velocity}");
+  // info!("calculated gravity: {gravity} initial velocity: {velocity}");
+  let jump_height = config.jump_height * config.player_size.y * config.scale;
+  info!("player_size: {}", config.player_size.y);
+  info!(
+    "jump_height relative to player size: {}",
+    config.jump_height
+  );
+  info!("jump_height: {jump_height}");
+
+  config.gravity = (-2. * jump_height) / config.jump_height_reach_time.powf(2.);
+  config.jump_initial_velocity = (2. * jump_height) / config.jump_height_reach_time;
 
   let root = commands
     .spawn((Name::new("Game Level"), SpatialBundle::default()))

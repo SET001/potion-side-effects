@@ -75,7 +75,7 @@ pub fn spawn_player(
           },
           ..default()
         },
-        Collider::cuboid(16., 20.),
+        Collider::cuboid(config.player_size.x / 2., config.player_size.y / 2.),
         RigidBody::KinematicPositionBased,
         KinematicCharacterControllerOutput::default(), //  this should be auto added by rapier
         KinematicCharacterController::default(),
@@ -88,7 +88,6 @@ pub fn spawn_player(
           )),
           AnimationState::default(),
           SpriteSheetBundle {
-            transform: Transform::from_scale(Vec3::splat(config.scale)),
             texture_atlas: textures.add(TextureAtlas::from_grid(
               asset_server.load("player.png"),
               Vec2::new(16.0, 20.0),

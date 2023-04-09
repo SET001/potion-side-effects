@@ -8,8 +8,10 @@ pub struct GameConfig {
   pub gravity: f32,
   pub move_speed: f32,
   pub scale: f32,
+  pub jump_initial_velocity: f32,
   pub jump_height: f32,
   pub jump_height_reach_time: f32,
+  pub player_size: Vec2,
 }
 
 impl Default for GameConfig {
@@ -18,11 +20,13 @@ impl Default for GameConfig {
       title: "Bevy potions side effect".into(),
       tile_size: UVec2::new(16, 16),
       map_size: UVec2::new(25, 25),
-      gravity: -10.,
-      jump_height: 16. * 3.,
-      jump_height_reach_time: 2000.,
+      gravity: 0.,
+      jump_height: 3., //  relative to player height
+      jump_height_reach_time: 500.,
+      jump_initial_velocity: 0.,
       move_speed: 200.,
       scale: 2.,
+      player_size: Vec2::new(16., 20.),
     }
   }
 }
