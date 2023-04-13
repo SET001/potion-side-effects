@@ -77,8 +77,10 @@ pub fn spawn_player(
         },
         Collider::cuboid(config.player_size.x / 2., config.player_size.y / 2.),
         RigidBody::KinematicPositionBased,
-        KinematicCharacterControllerOutput::default(), //  this should be auto added by rapier
-        KinematicCharacterController::default(),
+        KinematicCharacterController {
+          translation: Some(Vec2::default()),
+          ..default()
+        },
       ))
       .with_children(|parent| {
         parent.spawn((

@@ -1,4 +1,6 @@
-use bevy::prelude::*;
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use bevy_ecs_tilemap::TilemapPlugin;
 use bevy_rapier2d::prelude::{NoUserData, RapierPhysicsPlugin};
 #[cfg(feature = "debug_physics")]
@@ -12,7 +14,10 @@ use crate::{
     camera_follow,
     jump::jumping,
   },
-  pawns::{dude::controller::PlayerAction, PawnsPlugin},
+  pawns::{
+    dude::controller::{player_controller, PlayerAction},
+    PawnsPlugin,
+  },
   states::{GameStates, GameStatesPlugin},
 };
 
@@ -41,7 +46,12 @@ pub fn get_app() -> App {
     .add_startup_system(setup)
     .add_event::<AnimationEndedEvent>()
     .add_system(animate)
-    .add_systems((camera_follow::camera_follow, jumping).in_set(OnUpdate(GameStates::GameActive)));
+    .add_system(
+      jumping
+        .in_set(OnUpdate(GameStates::GameActive))
+        .before(player_controller), // .run_if(on_timer(Duration::from_secs_f32(0.1))),
+    )
+    .add_system(camera_follow::camera_follow.in_set(OnUpdate(GameStates::GameActive)));
 
   #[cfg(feature = "debug_physics")]
   app.add_plugin(RapierDebugRenderPlugin::default());
